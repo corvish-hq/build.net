@@ -565,5 +565,5 @@ Applies only to repositories with a data layer.
   (`$""" ... """`).
 - **Multi-clause** SQL (SELECT/FROM/WHERE, CREATE TABLE with multiple columns, multi-row INSERT) should use multi-line
   raw strings with readable line breaks.
-- **Single-clause** SQL that fits within the 120-character line limit should use a **single-line** raw string (e.g.,
+- **Single-clause** SQL that fits within the 140-character line limit should use a **single-line** raw string (e.g.,
   `"""DELETE FROM "Table" WHERE "key" = 'value'"""`).

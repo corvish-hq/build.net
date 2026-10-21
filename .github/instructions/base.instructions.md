@@ -175,7 +175,7 @@ for concrete reasons (time pressure, scope, risk). Never take this path on your 
   the repository's formatter settings (`.editorconfig`, ReSharper settings). If the surrounding code deviates (e.g.
   imported or legacy code), do not copy the deviation: point it out and propose aligning it as a separate step before
   building on it.
-- **Line length limit: 120 characters.** Use the available width — don't break lines unnecessarily short.
+- **Line length limit: 140 characters.** Use the available width — don't break lines unnecessarily short.
 - **Comment non-obvious decisions.** When a choice isn't immediately self-evident (empty templates, suppressed defaults,
   workarounds, defensive guards, intentional no-ops), add a comment explaining *why* — not *what*. If someone might
   later ask "why was this done this way?", a comment is mandatory.

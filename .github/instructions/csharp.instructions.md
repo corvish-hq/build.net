@@ -19,7 +19,7 @@ applyTo: "**/*.cs"
 - Add complete XML documentation (`<summary>`, `<param>`, `<returns>`, `<exception>`) for **every member** you add
   or change — not just public APIs; internal and private members matter to maintainers too.
 - Use `<remarks>` for additional details, `<example>` for usage samples when helpful.
-- **Use the full 120-character line width** in XML documentation. Break at logical points (end of sentence) rather than
+- **Use the full 140-character line width** in XML documentation. Break at logical points (end of sentence) rather than
   at arbitrary positions.
 - For `cancellationToken` parameters, use the standard phrasing: `A token to cancel the operation.` Context-specific
   phrasings are allowed as exceptions.
