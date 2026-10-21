@@ -220,6 +220,18 @@ Avoid magic strings in code. Use framework-provided constants (e.g., `HeaderName
 - Rethrow with `throw;` (never `throw ex;`) to keep the stack trace.
 - `async void` only for event handlers — exceptions from it cannot be observed by the caller.
 
+### JSON Contracts
+
+Types that define a persisted or exchanged JSON format (seed files, exports, transfer codes, external API payloads)
+are contracts — renaming a C# member must never silently change the format.
+
+- JSON property names are **camelCase**.
+- Every property of a contract type pins its name with `[JsonPropertyName]`; the naming policy of the serializer
+  options is not relied on.
+- Boolean properties carry `Is` / `Has` / `Are` / `Can` in C#, but drop the prefix in JSON
+  (`IsEnabled` → `enabled`, `AreToolsEnabled` → `toolsEnabled`).
+- Purely internal JSON (e.g. caches never read by another version) may rely on the serializer naming policy.
+
 ---
 
 ## Class Layout
