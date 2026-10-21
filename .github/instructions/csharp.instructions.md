@@ -188,6 +188,8 @@ Avoid magic strings in code. Use framework-provided constants (e.g., `HeaderName
 
 ### Type Choices
 
+- **Access modifiers are always explicit** (`internal sealed class`, `private int _count`) — the default is never
+  relied on implicitly. Interface members are the exception and carry no modifier.
 - **Classes are `sealed` by default.** Unseal only for a deliberate inheritance design (abstract base, documented
   extension point).
 - Fields assigned only during construction are `readonly`. Value types are `readonly struct` / `readonly record

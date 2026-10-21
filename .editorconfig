@@ -83,6 +83,10 @@ dotnet_diagnostic.CA2263.severity = none
 [*.cs]
 dotnet_diagnostic.IDE1006.severity = warning
 
+# Access modifiers are always explicit (see csharp.instructions.md, "Type Choices"); interface members stay implicit.
+dotnet_style_require_accessibility_modifiers = for_non_interface_members
+dotnet_diagnostic.IDE0040.severity = warning
+
 # CA1716: "Identifiers should not match keywords." The rule checks the keywords of all .NET languages, so VB-only
 # words like `Shared`, `Namespace` or `AddHandler` would force awkward renames of namespaces and members although
 # no VB consumer exists. Only parameters stay checked — named arguments are the one place where a keyword clash
