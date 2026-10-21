@@ -10,6 +10,7 @@ Shared build infrastructure for Corvish .NET projects, consumed as a Git submodu
 | `build.net.targets` | Shared MSBuild logic. Currently syncs the shared `*.instructions.md` files into the consumer repo on every local build. |
 | `.github/instructions/*.instructions.md` | Shared Copilot/agent rulebook: `base` (always loaded) plus topic files (`csharp`, `ui`, `testing`, `data`) loaded via `applyTo`. Consumer repos extend it with their own `.github/instructions/repo.instructions.md`. |
 | `templates/repo.instructions.md` | Starting point for a consumer's `repo.instructions.md`. Copied once, then owned by the consumer. |
+| `.editorconfig` | Shared formatting and analyzer settings, synced to the consumer's root on every local build. |
 | `ReSharper.DotSettings` | Shared ReSharper/Rider code-style settings, injected as a layer by consumer solutions. |
 
 ## Usage
@@ -61,6 +62,9 @@ Shared build infrastructure for Corvish .NET projects, consumed as a Git submodu
   stale copy by hand.
 - **Commit the copy** in the consumer repo. Copilot on github.com (coding agent, PR review) reads
   `.github/instructions/` directly from the repository and never builds, so only a committed copy reaches it.
+- `.editorconfig` is copied to `$(RepoRoot)` the same way (always overwritten, commit the copy). Repository-specific
+  rules go into a **nested** `.editorconfig` (e.g. `src/.editorconfig`) **without** `root = true`: EditorConfig
+  merges it with the root file, and the nearer file wins on conflicts.
 - Skipped on CI (`CI=true`, set by GitHub Actions).
 - A failed copy (e.g. a sharing violation during parallel builds) is retried and then reported as a warning; it never
   breaks the build.
@@ -99,5 +103,9 @@ instructions-drift:
           failed=1
         fi
       done
+      if ! git diff --no-index --exit-code build.net/.editorconfig .editorconfig; then
+        echo "::error file=.editorconfig::Copy differs from build.net. Build locally to resync and commit the result."
+        failed=1
+      fi
       exit $failed
 ```

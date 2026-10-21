@@ -43,6 +43,13 @@
 			<_BuildNetCopilotFile Include="$(_BuildNetCopilotSourceDir)*.instructions.md" />
 		</ItemGroup>
 		<MakeDir Directories="$(_BuildNetCopilotBaseDestDir)" />
+		<!-- The shared .editorconfig goes to the repo root; repo-specific additions live in a nested .editorconfig. -->
+		<Copy SourceFiles="$(MSBuildThisFileDirectory).editorconfig"
+		      DestinationFolder="$(RepoRoot)"
+		      SkipUnchangedFiles="true"
+		      Retries="5"
+		      RetryDelayMilliseconds="200"
+		      ContinueOnError="WarnAndContinue" />
 		<!--
 			Projects build in parallel and all run this target, so two nodes may write the same file at once.
 			Retries absorb transient sharing violations; a failed sync must never break the build because the

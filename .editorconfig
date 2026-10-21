@@ -1,0 +1,117 @@
+# ===================================================
+# Shared baseline, owned by the build.net repository (https://github.com/corvish-hq/build.net).
+# Consumer repos receive a copy at their root on every build — never edit the copy, change build.net instead.
+# Repository-specific additions go into a nested .editorconfig (e.g. src/.editorconfig) WITHOUT root = true;
+# EditorConfig merges it with this file, and the nearer file wins on conflicts.
+# ===================================================
+
+# ===================================================
+# Root configuration
+# ===================================================
+root = true
+
+# ===================================================
+# Universal editor settings
+# ===================================================
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+tab_width = 4
+
+# ===================================================
+# Markdown files: preserve trailing spaces
+# ===================================================
+[*.md]
+trim_trailing_whitespace = false
+
+# ===================================================
+# Windows scripts use CRLF
+# ===================================================
+[*.{bat,cmd,ps1,psm1,psd1}]
+end_of_line = crlf
+
+# ===================================================
+# File-type specific overrides
+# ===================================================
+[*.{json,jsonc,yml,yaml}]
+indent_style = space
+indent_size = 2
+
+[*.{js,ts}]
+quote_type = single
+
+[*.{cs,csproj,vb,vbproj,fs,fsi,fsx,fsproj,props,targets,razor,cshtml}]
+indent_style = tab
+indent_size = 4
+tab_width = 4
+max_line_length = 120
+
+[*.{html,xml,xaml,js,css,sql,resx}]
+indent_style = space
+indent_size = 4
+tab_width = 4
+insert_final_newline = true
+
+# ===================================================
+# Test projects: xUnit v3 analyzer adjustments
+# ===================================================
+[**Tests/**.cs]
+# xUnit1051: "Use TestContext.Current.CancellationToken for responsive test cancellation."
+# Downgraded to suggestion because many tests intentionally control their CancellationToken
+# (e.g., cancellation-behavior tests, timeout tests). The global safety net in
+# xunit.runner.json (longRunningTestSeconds: 10) already catches runaway tests.
+dotnet_diagnostic.xUnit1051.severity = suggestion
+
+# xUnit2013: "Do not use equality check to check for collection size."
+# Downgraded to suggestion because Assert.Equal(expectedCount, collection.Count) is
+# preferred when tests verify a specific count alongside full element assertions —
+# Assert.Single() only covers count == 1 and loses the explicit count context.
+dotnet_diagnostic.xUnit2013.severity = suggestion
+
+# CA2263: "Prefer the generic overload."
+# Tests for non-generic API surface (e.g. Register(string, Type)) intentionally
+# call the non-generic overload to validate its behavior; flagging that is
+# noise rather than signal.
+dotnet_diagnostic.CA2263.severity = none
+
+# Field naming (see csharp.instructions.md, "Field Naming"); .NET runtime convention.
+# Roslyn orders rules by specificity, so const / static readonly win over the general static and instance rules.
+[*.cs]
+dotnet_diagnostic.IDE1006.severity = warning
+
+dotnet_naming_rule.constant_fields_pascal.severity = warning
+dotnet_naming_rule.constant_fields_pascal.symbols = constant_fields
+dotnet_naming_rule.constant_fields_pascal.style = pascal_case
+dotnet_naming_symbols.constant_fields.applicable_kinds = field
+dotnet_naming_symbols.constant_fields.applicable_accessibilities = *
+dotnet_naming_symbols.constant_fields.required_modifiers = const
+
+dotnet_naming_rule.static_readonly_fields_pascal.severity = warning
+dotnet_naming_rule.static_readonly_fields_pascal.symbols = static_readonly_fields
+dotnet_naming_rule.static_readonly_fields_pascal.style = pascal_case
+dotnet_naming_symbols.static_readonly_fields.applicable_kinds = field
+dotnet_naming_symbols.static_readonly_fields.applicable_accessibilities = *
+dotnet_naming_symbols.static_readonly_fields.required_modifiers = static, readonly
+
+dotnet_naming_rule.private_static_fields_s_prefix.severity = warning
+dotnet_naming_rule.private_static_fields_s_prefix.symbols = private_static_fields
+dotnet_naming_rule.private_static_fields_s_prefix.style = s_camel_case
+dotnet_naming_symbols.private_static_fields.applicable_kinds = field
+dotnet_naming_symbols.private_static_fields.applicable_accessibilities = private, internal, private_protected
+dotnet_naming_symbols.private_static_fields.required_modifiers = static
+
+dotnet_naming_rule.private_instance_fields_underscore.severity = warning
+dotnet_naming_rule.private_instance_fields_underscore.symbols = private_instance_fields
+dotnet_naming_rule.private_instance_fields_underscore.style = underscore_camel_case
+dotnet_naming_symbols.private_instance_fields.applicable_kinds = field
+dotnet_naming_symbols.private_instance_fields.applicable_accessibilities = private, internal, private_protected
+
+dotnet_naming_style.pascal_case.capitalization = pascal_case
+dotnet_naming_style.s_camel_case.capitalization = camel_case
+dotnet_naming_style.s_camel_case.required_prefix = s_
+dotnet_naming_style.underscore_camel_case.capitalization = camel_case
+dotnet_naming_style.underscore_camel_case.required_prefix = _
