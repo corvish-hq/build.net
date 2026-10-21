@@ -1,0 +1,44 @@
+<Project>
+
+	<!--
+		build.net — shared MSBuild defaults for Corvish projects.
+
+		Import from the consumer repo's Directory.Build.props. The import is mandatory: without the submodule the
+		build does not meet the shared standards, so it must fail instead of silently building without them. An
+		unguarded import does exactly that (MSB4019 names the missing file); see README.md for the snippet.
+
+		Repository-specific values stay in the consumer: TargetFramework, LangVersion, AnalysisLevel (they are
+		pinned per repository), metadata, and additional warning exceptions. Set properties after the import to
+		override a default; extend lists by appending ($(WarningsNotAsErrors);CAxxxx).
+	-->
+
+	<!-- Language & code style defaults -->
+	<PropertyGroup>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+
+		<!-- Enforce .editorconfig style/formatting rules during build (incl. CI). -->
+		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+
+		<!--
+			Treat warnings as errors to keep the codebase clean, but allow CS1591 (missing XML doc) to remain a
+			warning so work-in-progress builds are not blocked. Also exclude quality-of-life analyzer rules that are
+			noisy or require architectural refactoring (CA1848: LoggerMessage delegates, CA1873: logging guard
+			checks, CA1859: performance-based type optimizations, CA1861: static readonly test data).
+		-->
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+		<WarningsNotAsErrors>CS1591;CA1848;CA1873;CA1859;CA1861</WarningsNotAsErrors>
+
+		<!--
+			AnalysisMode=Recommended is a curated, high-signal subset; bump to 'All' once warning count is under
+			control. AnalysisLevel is pinned by the consumer (it matches the repository's TargetFramework).
+		-->
+		<AnalysisMode>Recommended</AnalysisMode>
+
+		<!-- Docs + debugging. GenerateDocumentationFile also makes the compiler validate cref references. -->
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<DebugType>portable</DebugType>
+		<ContinuousIntegrationBuild>$(CI)</ContinuousIntegrationBuild>
+	</PropertyGroup>
+
+</Project>

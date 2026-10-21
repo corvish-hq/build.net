@@ -1,0 +1,81 @@
+<Project>
+
+	<!--
+		build.net — shared MSBuild logic for Corvish projects.
+
+		Import unguarded from the consumer repo's Directory.Build.targets, like build.net.props. Without the
+		submodule the build stops (MSB4019 names the missing file); see README.md for the snippet:
+
+			<Import Project="$(RepoRoot)build.net\build.net.targets" />
+
+		Optional input properties (set before the import, e.g. in Directory.Build.props):
+			RepoRoot   Consumer repository root with trailing slash. Defaults to the parent directory of
+			           this submodule.
+	-->
+
+	<PropertyGroup>
+		<RepoRoot Condition="'$(RepoRoot)' == ''">$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\'))</RepoRoot>
+		<RepoRoot Condition="!HasTrailingSlash('$(RepoRoot)')">$(RepoRoot)\</RepoRoot>
+		<_BuildNetCopilotSourceDir>$(MSBuildThisFileDirectory).github\instructions\</_BuildNetCopilotSourceDir>
+		<_BuildNetCopilotBaseSource>$(_BuildNetCopilotSourceDir)base.instructions.md</_BuildNetCopilotBaseSource>
+		<_BuildNetCopilotBaseDestDir>$(RepoRoot).github\instructions\</_BuildNetCopilotBaseDestDir>
+	</PropertyGroup>
+
+	<!--
+		Sync the shared Copilot instruction files (*.instructions.md) into the consumer's .github/instructions/
+		directory. They are owned by build.net and are always overwritten; repo-specific rules belong in
+		repo.instructions.md, which this target never touches.
+
+		The copy is meant to be committed in the consumer repo: Copilot on github.com (coding agent, PR review) reads
+		.github/instructions/ straight from the repository and never builds, so only a committed copy reaches it.
+		Locally, this target keeps the copy in sync with build.net on every build.
+
+		The copy is always overwritten when it differs from the source — including local edits, which would be
+		newer than the source and therefore survive a timestamp-based (Inputs/Outputs) check. SkipUnchangedFiles
+		compares size and timestamp, so an unchanged copy costs next to nothing. Consumers should additionally run
+		a CI check that fails when the committed copy drifts from build.net (see README.md). Disabled on CI where
+		Copilot is not used (CI env var is set by GitHub Actions).
+	-->
+	<Target Name="SyncCopilotInstructions"
+	        BeforeTargets="BeforeBuild"
+	        Condition="'$(CI)' != 'true' and Exists('$(_BuildNetCopilotBaseSource)')">
+		<ItemGroup>
+			<_BuildNetCopilotFile Include="$(_BuildNetCopilotSourceDir)*.instructions.md" />
+		</ItemGroup>
+		<MakeDir Directories="$(_BuildNetCopilotBaseDestDir)" />
+		<!--
+			Projects build in parallel and all run this target, so two nodes may write the same file at once.
+			Retries absorb transient sharing violations; a failed sync must never break the build because the
+			copy only feeds Copilot, not the compilation.
+		-->
+		<Copy SourceFiles="@(_BuildNetCopilotFile)"
+		      DestinationFolder="$(_BuildNetCopilotBaseDestDir)"
+		      SkipUnchangedFiles="true"
+		      Retries="5"
+		      RetryDelayMilliseconds="200"
+		      ContinueOnError="WarnAndContinue" />
+	</Target>
+
+	<!--
+		CA1707 (no underscores in identifiers) conflicts with the shared test-naming convention
+		Method_State_Expectation (testing.instructions.md, "Naming"). Suppressed for test projects here rather than in
+		build.net.props because IsTestProject is only known after the project file has been evaluated.
+	-->
+	<PropertyGroup Condition="'$(IsTestProject)' == 'true'">
+		<NoWarn>$(NoWarn);CA1707</NoWarn>
+	</PropertyGroup>
+
+	<!--
+		This file exists but the baseline does not: build.net is checked out at a broken or incomplete state.
+		Warn instead of silently skipping, otherwise Copilot keeps working with a stale baseline unnoticed.
+		(A completely uninitialized submodule is detected by the consumer's import, since then this file is
+		missing too.)
+	-->
+	<Target Name="_WarnMissingCopilotInstructions"
+	        BeforeTargets="BeforeBuild"
+	        Condition="'$(CI)' != 'true' and !Exists('$(_BuildNetCopilotBaseSource)')">
+		<Warning Code="BUILDNET001"
+		         Text="Shared Copilot instructions not found at '$(_BuildNetCopilotBaseSource)'. Run 'git submodule update --init --recursive' to restore build.net." />
+	</Target>
+
+</Project>
