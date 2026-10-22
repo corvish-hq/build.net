@@ -317,6 +317,13 @@ set, listed in `<remarks>` (or documented as an omission).
   modify it, and pass it back. This pattern is unsafe (no field-level control over what is changeable, double
   validation, concurrency leaks) and breaks down across process boundaries (client-side UIs such as Blazor WASM have no
   `DbContext`).
+- **`bool` for expected outcomes, exceptions for broken preconditions.** A mutation returns `false` when the outcome
+  is a normal, expected case the caller can act on — the target no longer exists (deleted concurrently, idempotent
+  retry), or a domain rule declines the change. It throws when the caller's assumptions are wrong and continuing would
+  leave inconsistent state (e.g. a referenced entity belongs to a different aggregate). Document the meaning of
+  `false` in the XMLDoc `<returns>`.
+- **Callers evaluate `bool` results.** A discarded success indicator hides a failed mutation. Every caller branches
+  on the result, or states in a comment why the outcome does not matter (e.g. an idempotent delete).
 
 #### Compiled Queries
 
