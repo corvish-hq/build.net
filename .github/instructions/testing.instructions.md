@@ -534,6 +534,11 @@ Use **Coverlet** to measure coverage. Focus on uncovered lines/branches, edge ca
 
 Do **not** hide reachable logic behind `ExcludeFromCodeCoverage` just to satisfy coverage.
 
+**Pure data classes** (entities, DTOs, option bags — only auto-properties and initializers, no testable logic) carry
+`[ExcludeFromCodeCoverage(Justification = "...")]` on the class, with a short justification. Coverage tools disagree on
+whether auto-properties count (dotCover does, Coverlet does not), so the attribute keeps the numbers comparable. Once
+a data class gains logic (computed property, method, validation), remove the attribute and test the logic directly.
+
 #### Accepted Gaps
 
 100% is the target, not an end in itself. A reachable path may stay uncovered when covering it would cost
