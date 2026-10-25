@@ -161,6 +161,22 @@ inline comments that explain **why** something is done, not **what** the code do
 | **Cross-references** | Link to counterpart tests that verify the same scenario from a different perspective |
 | **Dead code in setups** | If a variable is created only as scaffolding (not part of the assertion), explain its purpose — or remove it |
 
+#### Bug Fixes Start Red
+
+A bug fix starts with a test that reproduces the bug — and it **must be seen failing** before the fix is written:
+
+1. **Reproduce.** Write the regression test against the unfixed code and run it. It must fail, and for the reported
+   reason (not a compile error, setup fault or unrelated assertion).
+2. **Fix.** Change the production code until the test turns green; the rest of the suite stays green.
+3. **Prove the guard.** When a test was written after the fix (or a fix spans several hunks), temporarily revert each
+   hunk and confirm the test fails, then restore the fix. A test that stays green without its fix is sharpened or
+   replaced.
+
+A fix whose bug cannot be reproduced deterministically (thread races, behavior the framework already masks, logging,
+compiler-enforced contracts) is still allowed, but the report names it and states why no failing test exists (see
+[Coverage Exceptions](#coverage-exceptions)). Never "fix" an unconfirmed bug on suspicion alone — confirm it first,
+by test or by evidence in the code.
+
 #### Staged Approach for Test Implementation
 
 When implementing tests (especially for complex classes), use a staged approach:
