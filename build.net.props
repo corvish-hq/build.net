@@ -23,11 +23,11 @@
 		<!--
 			Treat warnings as errors to keep the codebase clean, but allow CS1591 (missing XML doc) to remain a
 			warning so work-in-progress builds are not blocked. Also exclude quality-of-life analyzer rules that are
-			noisy or require architectural refactoring (CA1848: LoggerMessage delegates, CA1873: logging guard
-			checks, CA1859: performance-based type optimizations, CA1861: static readonly test data).
+			noisy or require architectural refactoring (CA1873: logging guard checks, CA1859: performance-based type
+			optimizations, CA1861: static readonly test data).
 		-->
 		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-		<WarningsNotAsErrors>CS1591;CA1848;CA1873;CA1859;CA1861</WarningsNotAsErrors>
+		<WarningsNotAsErrors>CS1591;CA1873;CA1859;CA1861</WarningsNotAsErrors>
 
 		<!--
 			AnalysisMode=Recommended is a curated, high-signal subset; bump to 'All' once warning count is under
